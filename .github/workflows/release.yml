@@ -90,8 +90,8 @@ jobs:
           $output_msi = "target/release/wsldashboard.v$version.msi"
           $source_exe = "target/release/wsldashboard.v$version.exe"
           $license_rtf = "build/installer/common/LICENSE.rtf"
-          candle "build/installer/wix/Product.wxs" -arch x64 -dVersion="$wixVersion" -dProductName="WSL Dashboard" -dManufacturer="WSL Dashboard" -dSourceExe="$source_exe" -dAppIcon="build/installer/common/app.ico" -dLicenseRtf="$license_rtf" -dLicenseFile="build/installer/common/LICENSE" -o "build/installer/wix/"
-          light "build/installer/wix/Product.wixobj" -o "$output_msi"
+          candle "build/installer/wix/Product.wxs" -arch x64 -ext WixUIExtension -dVersion="$wixVersion" -dProductName="WSL Dashboard" -dManufacturer="WSL Dashboard" -dSourceExe="$source_exe" -dAppIcon="build/installer/common/app.ico" -dLicenseRtf="$license_rtf" -dLicenseFile="build/installer/common/LICENSE" -o "build/installer/wix/"
+          light "build/installer/wix/Product.wixobj" -ext WixUIExtension -o "$output_msi"
 
       - name: Build NSIS
         if: startsWith(github.ref, 'refs/tags/')
