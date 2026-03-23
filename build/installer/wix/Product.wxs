@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product
+    Id="{2C7D9F11-0B9C-4C8F-9D0F-8B6A4E7781E1}"
+    Name="$(var.ProductName)"
+    Language="1033"
+    Version="$(var.Version)"
+    Manufacturer="$(var.Manufacturer)"
+    UpgradeCode="{A8B2F6F1-7B8A-4DA5-BB6E-2F4C9A7D3B62}">
+
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed." />
+    <MediaTemplate />
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseRtf)" />
+
+    <Icon Id="AppIcon" SourceFile="$(var.AppIcon)" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="wsl-dashboard">
+          <Component Id="MainExecutable" Guid="{D00B2C9B-2F7A-4C7C-A0EA-7E9B0A0C7E2B}">
+            <File Id="WsldashboardExe" Source="$(var.SourceExe)" Name="wsldashboard.exe" KeyPath="yes" />
+            <File Id="LicenseFile" Source="$(var.LicenseFile)" Name="LICENSE" />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)">
+          <Component Id="StartMenuShortcuts" Guid="{9D7E4F6F-6E3A-4E52-AF8A-98A1F2F08E6C}">
+            <Shortcut
+              Id="StartMenuShortcut"
+              Name="$(var.ProductName)"
+              Target="[INSTALLFOLDER]wsldashboard.exe"
+              WorkingDirectory="INSTALLFOLDER"
+              Icon="AppIcon" />
+            <RemoveFolder Id="RemoveAppStartMenuFolder" On="uninstall" />
+            <RegistryValue
+              Root="HKCU"
+              Key="Software\$(var.Manufacturer)\$(var.ProductName)"
+              Name="StartMenu"
+              Type="integer"
+              Value="1"
+              KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="DesktopFolder">
+        <Component Id="DesktopShortcut" Guid="{C0E2F6A0-1A6B-4C43-9A4C-3B8A4E5F6D1D}">
+          <Shortcut
+            Id="DesktopShortcut"
+            Name="$(var.ProductName)"
+            Target="[INSTALLFOLDER]wsldashboard.exe"
+            WorkingDirectory="INSTALLFOLDER"
+            Icon="AppIcon" />
+          <RegistryValue
+            Root="HKCU"
+            Key="Software\$(var.Manufacturer)\$(var.ProductName)"
+            Name="Desktop"
+            Type="integer"
+            Value="1"
+            KeyPath="yes" />
+        </Component>
+      </Directory>
+    </Directory>
+
+    <Feature Id="MainFeature" Title="$(var.ProductName)" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="StartMenuShortcuts" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+  </Product>
+</Wix>

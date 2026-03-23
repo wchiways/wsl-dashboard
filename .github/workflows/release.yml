@@ -40,6 +40,21 @@ jobs:
       - name: Build Release
         run: cargo build --release
 
+      - name: Install WiX Toolset
+        if: startsWith(github.ref, 'refs/tags/')
+        run: choco install wixtoolset --no-progress -y
+
+      - name: Add WiX to PATH
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $wixPath = "${env:ProgramFiles(x86)}\WiX Toolset v3.11\bin"
+          echo $wixPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install NSIS
+        if: startsWith(github.ref, 'refs/tags/')
+        run: choco install nsis --no-progress -y
+
       - name: Get Version
         if: startsWith(github.ref, 'refs/tags/')
         id: get_version
@@ -57,12 +72,33 @@ jobs:
            $raw_exe = "target/release/wsldashboard.exe"
            $versioned_exe = "target/release/wsldashboard.v$version.exe"
            # $upx_exe = "target/release/wsldashboard.v$version.upx.exe"
-           
+
            # Rename original to versioned name (Uncompressed)
            Move-Item $raw_exe $versioned_exe
-           
+
            # # Copy versioned to UPX target name
            # Copy-Item $versioned_exe $upx_exe
+
+      - name: Build MSI (WiX)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $output_msi = "target/release/wsldashboard.v$version.msi"
+          $source_exe = "target/release/wsldashboard.v$version.exe"
+          $license_rtf = "build/installer/common/LICENSE.rtf"
+          candle "build/installer/wix/Product.wxs" -arch x64 -dVersion=$version -dProductName="WSL Dashboard" -dManufacturer="WSL Dashboard" -dSourceExe="$source_exe" -dAppIcon="build/installer/common/app.ico" -dLicenseRtf="$license_rtf" -dLicenseFile="build/installer/common/LICENSE" -o "build/installer/wix/"
+          light "build/installer/wix/Product.wixobj" -o "$output_msi"
+
+      - name: Build NSIS
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $output_dir = "target/release"
+          $source_exe = "target/release/wsldashboard.v$version.exe"
+          $build_dir = "build/installer"
+          & "${env:ProgramFiles(x86)}\NSIS\makensis.exe" /DVERSION=$version /DOUTPUT_DIR="$output_dir" /DSOURCE_EXE="$source_exe" /DBUILD_DIR="$build_dir" "build/installer/nsis/installer.nsi"
 
 #       - name: Compress with UPX
 #         if: startsWith(github.ref, 'refs/tags/')
@@ -74,5 +110,7 @@ jobs:
         with:
           files: |
             target/release/wsldashboard.v${{ steps.get_version.outputs.VERSION }}.exe
+            target/release/wsldashboard.v${{ steps.get_version.outputs.VERSION }}.msi
+            target/release/wsldashboard.v${{ steps.get_version.outputs.VERSION }}.nsis.exe
             # target/release/wsldashboard.v${{ steps.get_version.outputs.VERSION }}.upx.exe
           generate_release_notes: true
