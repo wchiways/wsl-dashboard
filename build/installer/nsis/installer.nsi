@@ -4,8 +4,8 @@
 !define COMPANY_NAME "WSL Dashboard"
 !define APP_EXE "wsldashboard.exe"
 !define INSTALL_DIR "$PROGRAMFILES64\wsl-dashboard"
-!define ICON_FILE "${BUILD_DIR}\common\app.ico"
-!define LICENSE_FILE "${BUILD_DIR}\common\LICENSE"
+!define ICON_FILE "${BUILD_DIR}/common/app.ico"
+!define LICENSE_FILE "${BUILD_DIR}/common/LICENSE"
 !define PRODUCT_CODE "{2C7D9F11-0B9C-4C8F-9D0F-8B6A4E7781E1}"
 
 Name "${APP_NAME}"
