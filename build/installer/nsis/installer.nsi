@@ -31,7 +31,6 @@ RequestExecutionLevel admin
 Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   File "${SOURCE_EXE}"
-  File /oname=LICENSE "${LICENSE_FILE}"
 
   CreateDirectory "$SMPROGRAMS\${APP_NAME}"
   CreateShortCut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" "$INSTDIR\${APP_EXE}" "" "$INSTDIR\${APP_EXE}"
@@ -49,7 +48,6 @@ SectionEnd
 
 Section "Uninstall"
   Delete "$INSTDIR\${APP_EXE}"
-  Delete "$INSTDIR\LICENSE"
   Delete "$INSTDIR\Uninstall.exe"
 
   Delete "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk"
